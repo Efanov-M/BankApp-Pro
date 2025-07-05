@@ -1,10 +1,14 @@
+from bank.user import User
+
 from .transaction import Transaction, TransactionLog
 
 
 class BankAccount:
 
-    def __init__(self, owner, balance):
-        self.owner = owner
+    def __init__(self, user, balance):
+        if not isinstance(user, User):
+            raise ValueError("Ошибка: получатель должен быть объектом BankAccount")
+        self.owner = user
         self.__balance = balance
         self._log = TransactionLog()  # для хранения операций текущего счёта.
 
@@ -90,8 +94,8 @@ class BankAccount:
             if t.type == t_type:
                 print(t)
                 found = True
-            if not found:
-                print(f"Нет операций типа: {t_type}")
+        if not found:
+            print(f"Нет операций типа: {t_type}")
 
     def filter_transactions_by_date(self, date_str):
         filtered = [
