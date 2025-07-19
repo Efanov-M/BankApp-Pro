@@ -1,11 +1,11 @@
-from bank.user import User
-
 from .transaction import Transaction, TransactionLog
 
 
 class BankAccount:
 
     def __init__(self, user, balance):
+        from bank.user import User
+
         if not isinstance(user, User):
             raise ValueError("Ошибка: получатель должен быть объектом BankAccount")
         self.owner = user
