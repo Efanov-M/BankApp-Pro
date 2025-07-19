@@ -3,6 +3,14 @@ from bank.utils.account import BankAccount
 
 class User:
 
+    # Класс для представления пользователя банка.
+
+    # Атрибуты:
+    # username — имя пользователя
+    # email — адрес электронной почты
+    # user_id — уникальный ID
+    # accounts — список банковских счетов
+
     def __init__(
         self,
         username,
