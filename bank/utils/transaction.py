@@ -24,6 +24,57 @@ class Transaction:  # представляет одну операцию (deposi
         else:
             return f"{date} Неизвестная операция: тип = {self.type}"
 
+    def to_dict(self):
+
+        # Преобразует объект Transaction в словарь для сохранения в JSON.
+
+        return {
+            "type": self.type,  # Тип транзакции: deposit, withdraw, transfer
+            "amount": self.amount,  # Сумма
+            "sender": (
+                self.sender.user_id if self.sender else None
+            ),  # ID отправителя, если есть
+            "receiver": (
+                self.receiver.user_id if self.receiver else None
+            ),  # ID получателя, если есть
+            "note": self.note,  # Комментарий
+            "timestamp": self.timestamp.isoformat(),  # Дата/время в строковом формате ISO 8601
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        from datetime import datetime
+
+        from bank.user import User  # Нужно для создания временных объектов
+
+        # Временные "заглушки" пользователей — заменяются позже
+        sender = (
+            User(username="sender", email="none@example.com", user_id=data["sender"])
+            if data["sender"]
+            else None
+        )
+        receiver = (
+            User(
+                username="receiver", email="none@example.com", user_id=data["receiver"]
+            )
+            if data["receiver"]
+            else None
+        )
+
+        # Восстановление объекта Transaction
+        obj = cls(
+            type=data["type"],
+            amount=data["amount"],
+            sender=sender,
+            receiver=receiver,
+            note=data["note"],
+        )
+
+        # Восстанавливаем точное время
+        obj.timestamp = datetime.fromisoformat(data["timestamp"])
+
+        return obj
+
 
 class TransactionLog:  # журнал всех операций, умеет добавлять, фильтровать и выводить список.
 
@@ -49,3 +100,7 @@ class TransactionLog:  # журнал всех операций, умеет до
         if not filtered:
             print(f"Нет операций за {date_str}")
         return filtered
+
+    def to_dict(self):
+
+        return [transaction.to_dict() for transaction in self._transactions]

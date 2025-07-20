@@ -46,6 +46,15 @@ class User:
             for ac in self.accounts:
                 print(f"- {ac}")
 
+    def to_dict(self):
+        return {"user_id": self.user_id, "username": self.username, "email": self.email}
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            username=data["username"], email=data["email"], user_id=data["user_id"]
+        )
+
     def __str__(self):
         return (
             f"У пользователя {self.username} с id: {self.user_id} email: {self.email}"

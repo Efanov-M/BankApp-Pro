@@ -3,13 +3,17 @@ from .transaction import Transaction, TransactionLog
 
 class BankAccount:
 
-    def __init__(self, user, balance):
+    def __init__(self, account_id, user, balance, account_type="default"):
         from bank.user import User
 
         if not isinstance(user, User):
             raise ValueError("Ошибка: получатель должен быть объектом BankAccount")
+        self.account_id = account_id
         self.owner = user
+        self.owner_id = user.user_id
         self.__balance = balance
+        self.account_type = account_type
+
         self._log = TransactionLog()  # для хранения операций текущего счёта.
 
     def get_balance(self):
@@ -123,3 +127,32 @@ class BankAccount:
 
     def __str__(self):
         return f"Счёт владельца: {self.owner}— баланс: {self.__balance}"
+
+    def to_dict(self):
+        return {
+            "account_id": self.account_id,
+            "owner_id": self.owner_id,
+            "balance": self.__balance,
+            "account_type": self.account_type,
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        from bank.user import User
+
+        # Здесь создаётся временный "пустой" пользователь, заменяется позже
+        fake_user = User(
+            username="placeholder", email="none@example.com", user_id=data["owner_id"]
+        )
+
+        # Восстанавливаем объект BankAccount
+        acc = cls(
+            account_id=data["account_id"],
+            user=fake_user,
+            balance=data["balance"],
+            account_type=data.get(
+                "account_type", "default"
+            ),  # если нет поля — использовать "default"
+        )
+
+        return acc
