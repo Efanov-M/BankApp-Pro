@@ -4,6 +4,7 @@ import argparse
 
 from bank.user import User
 from bank.utils.account import BankAccount
+from bank.utils.file_manager import save_accounts, save_logs, save_users
 from bank.utils.transaction import Transaction, TransactionLog
 
 USERS = {}
@@ -365,6 +366,62 @@ def main():
 
     else:
         parser.print_help()
+
+
+def show_balance(users, accounts, logs, args):
+    if args.account_id not in accounts:
+        print("❌ Счёт не найден.")
+        return
+
+    acc = accounts[args.account_id]
+    print(f"💳 Баланс счёта {acc.account_id}: {acc.balance}₽")
+
+
+def show_log(users, accounts, logs, args):
+    if args.account_id not in logs:
+        print("❌ Журнал для счёта не найден.")
+        return
+
+    log = logs[args.account_id]
+    if not log.transactions:
+        print("📭 Журнал пуст.")
+        return
+
+    print(f"📜 Журнал операций по счёту {args.account_id}:")
+    for tx in log.transactions:
+        print(tx)
+
+
+def filter_type(users, accounts, logs, args):
+    if args.account_id not in logs:
+        print("❌ Журнал для счёта не найден.")
+        return
+
+    log = logs[args.account_id]
+    filtered = log.filter_by_type(args.tx_type)
+    if not filtered:
+        print("📭 Нет транзакций такого типа.")
+        return
+
+    print(f"📘 Фильтр по типу '{args.tx_type}':")
+    for tx in filtered:
+        print(tx)
+
+
+def filter_date(users, accounts, logs, args):
+    if args.account_id not in logs:
+        print("❌ Журнал для счёта не найден.")
+        return
+
+    log = logs[args.account_id]
+    filtered = log.filter_by_date(args.date)
+    if not filtered:
+        print(f"📭 Нет транзакций за {args.date}.")
+        return
+
+    print(f"🗓️ Фильтр по дате {args.date}:")
+    for tx in filtered:
+        print(tx)
 
 
 if __name__ == "__main__":
